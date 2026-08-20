@@ -2,9 +2,12 @@ import { ClipboardList, PackageCheck, WalletCards } from "lucide-react";
 import type { Metadata } from "next";
 import { formatCurrency, formatNumber } from "@/lib/format";
 import {
+  getOrderItems,
   getOrderRegistrations,
+  type OrderItemRow,
   type OrderRegistration,
 } from "@/lib/google-sheets";
+import { DashboardOrders } from "@/components/dashboard/dashboard-orders";
 
 export const dynamic = "force-dynamic";
 
@@ -15,10 +18,12 @@ export const metadata: Metadata = {
 
 export default async function DashboardPage() {
   let orders: OrderRegistration[];
+  let orderItems: OrderItemRow[] = [];
   let loadError = false;
 
   try {
     orders = await getOrderRegistrations();
+    orderItems = await getOrderItems();
   } catch (error) {
     console.error("[dashboard] Google Sheets read failed:", error);
     orders = [];
@@ -86,62 +91,7 @@ export default async function DashboardPage() {
                 Chưa có đăng ký nào.
               </p>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full min-w-[980px] text-left text-sm">
-                  <thead className="bg-secondary/60 text-xs uppercase tracking-wide text-muted-foreground">
-                    <tr>
-                      <th className="px-5 py-3 font-medium">Mã đơn</th>
-                      <th className="px-5 py-3 font-medium">Thời gian</th>
-                      <th className="px-5 py-3 font-medium">Đại lý</th>
-                      <th className="px-5 py-3 font-medium">Khách hàng</th>
-                      <th className="px-5 py-3 font-medium">Điện thoại</th>
-                      <th className="px-5 py-3 font-medium">Ghi chú</th>
-                      <th className="px-5 py-3 text-right font-medium">
-                        Tổng thanh toán
-                      </th>
-                      <th className="px-5 py-3 font-medium">Trạng thái</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border">
-                    {[...orders].reverse().map((order, index) => (
-                      <tr
-                        key={`${order.orderCode}-${index}`}
-                        className="hover:bg-secondary/30"
-                      >
-                        <td className="whitespace-nowrap px-5 py-4 font-medium text-foreground">
-                          {order.orderCode}
-                        </td>
-                        <td className="whitespace-nowrap px-5 py-4 text-muted-foreground">
-                          {order.createdAt}
-                        </td>
-                        <td className="px-5 py-4 text-foreground">
-                          {order.dealerName || "-"}
-                        </td>
-                        <td className="px-5 py-4 text-foreground">
-                          {order.customerName}
-                        </td>
-                        <td className="whitespace-nowrap px-5 py-4 text-foreground">
-                          {order.phone}
-                        </td>
-                        <td
-                          className="max-w-[220px] truncate px-5 py-4 text-muted-foreground"
-                          title={order.note}
-                        >
-                          {order.note || "-"}
-                        </td>
-                        <td className="whitespace-nowrap px-5 py-4 text-right font-semibold text-primary">
-                          {formatCurrency(order.totalAmount)}
-                        </td>
-                        <td className="px-5 py-4">
-                          <span className="rounded-full bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary">
-                            {order.status || "NEW"}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <DashboardOrders orders={orders} orderItems={orderItems} />
             )}
           </div>
         </>

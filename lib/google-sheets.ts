@@ -195,6 +195,40 @@ export async function getOrderRegistrations(): Promise<OrderRegistration[]> {
   }));
 }
 
+export async function getOrderItems(): Promise<OrderItemRow[]> {
+  if (!isConfigured()) {
+    throw new Error('Google Sheets credentials are not configured');
+  }
+
+  const sheets = getGoogleSheetsClient();
+  const res = await sheets.spreadsheets.values.get({
+    spreadsheetId: SHEET_ID,
+    range: `${ORDER_ITEMS_SHEET}!A:Z`,
+  });
+  const rows = res.data.values ?? [];
+  if (rows.length < 2) return [];
+
+  const headers = rows[0].map((header) => String(header));
+  const valueAt = (row: unknown[], key: string): string => {
+    const index = headers.indexOf(key);
+    return index === -1 ? '' : String(row[index] ?? '');
+  };
+  const amountAt = (row: unknown[], key: string): number => {
+    const value = Number(valueAt(row, key));
+    return Number.isFinite(value) ? value : 0;
+  };
+
+  return rows.slice(1).map((row) => ({
+    orderCode: valueAt(row, 'orderCode'),
+    productId: valueAt(row, 'productId'),
+    productName: valueAt(row, 'productName'),
+    productCode: valueAt(row, 'productCode'),
+    quantity: amountAt(row, 'quantity'),
+    unitPrice: amountAt(row, 'unitPrice'),
+    totalPrice: amountAt(row, 'totalPrice'),
+  }));
+}
+
 export function formatTimestamp(date: Date = new Date()): string {
   const dd = String(date.getDate()).padStart(2, '0');
   const mm = String(date.getMonth() + 1).padStart(2, '0');
