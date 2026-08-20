@@ -30,6 +30,19 @@ export interface OrderItemRow {
   totalPrice: number;
 }
 
+export interface OrderRegistration {
+  orderCode: string;
+  createdAt: string;
+  dealerName: string;
+  customerName: string;
+  phone: string;
+  note: string;
+  subtotalAmount: number;
+  discountAmount: number;
+  totalAmount: number;
+  status: string;
+}
+
 function isConfigured(): boolean {
   return Boolean(SHEET_ID && CLIENT_EMAIL && PRIVATE_KEY);
 }
@@ -143,6 +156,43 @@ export async function appendOrderItems(items: OrderItemRow[]): Promise<void> {
       ]),
     },
   });
+}
+
+export async function getOrderRegistrations(): Promise<OrderRegistration[]> {
+  if (!isConfigured()) {
+    throw new Error('Google Sheets credentials are not configured');
+  }
+
+  const sheets = getGoogleSheetsClient();
+  const res = await sheets.spreadsheets.values.get({
+    spreadsheetId: SHEET_ID,
+    range: `${ORDERS_SHEET}!A:Z`,
+  });
+  const rows = res.data.values ?? [];
+  if (rows.length < 2) return [];
+
+  const headers = rows[0].map((header) => String(header));
+  const valueAt = (row: unknown[], key: string): string => {
+    const index = headers.indexOf(key);
+    return index === -1 ? '' : String(row[index] ?? '');
+  };
+  const amountAt = (row: unknown[], key: string): number => {
+    const value = Number(valueAt(row, key));
+    return Number.isFinite(value) ? value : 0;
+  };
+
+  return rows.slice(1).map((row) => ({
+    orderCode: valueAt(row, 'orderCode'),
+    createdAt: valueAt(row, 'createdAt'),
+    dealerName: valueAt(row, 'dealerName'),
+    customerName: valueAt(row, 'customerName'),
+    phone: valueAt(row, 'phone'),
+    note: valueAt(row, 'note'),
+    subtotalAmount: amountAt(row, 'subtotalAmount'),
+    discountAmount: amountAt(row, 'discountAmount'),
+    totalAmount: amountAt(row, 'totalAmount'),
+    status: valueAt(row, 'status'),
+  }));
 }
 
 export function formatTimestamp(date: Date = new Date()): string {
