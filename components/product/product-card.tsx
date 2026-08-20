@@ -1,15 +1,14 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { toast } from 'sonner';
-import { ShoppingCart, ChevronRight } from 'lucide-react';
-import { Product } from '@/types';
-import { useCart } from '@/components/cart/cart-context';
-import { QuantitySelector } from '@/components/product/quantity-selector';
-import { formatCurrency } from '@/lib/format';
-import { cn } from '@/lib/utils';
+import { useState } from "react";
+import Image from "next/image";
+import { toast } from "sonner";
+import { ShoppingCart, ChevronRight } from "lucide-react";
+import { Product } from "@/types";
+import { useCart } from "@/components/cart/cart-context";
+import { QuantitySelector } from "@/components/product/quantity-selector";
+import { formatCurrency } from "@/lib/format";
+import { cn } from "@/lib/utils";
 
 export function ProductCard({ product }: { product: Product }) {
   const { addToCart } = useCart();
@@ -17,18 +16,12 @@ export function ProductCard({ product }: { product: Product }) {
 
   const handleAdd = () => {
     addToCart(product.id, qty);
-    toast.success('Đã thêm sản phẩm vào giỏ hàng', {
-      description: `${product.name} × ${qty}`,
-    });
     setQty(1);
   };
 
   return (
     <div className="group flex flex-col overflow-hidden rounded-xl border border-border bg-card shadow-sm transition-all hover:border-primary/30 hover:shadow-md">
-      <Link
-        href={`/products/${product.slug}`}
-        className="relative block aspect-[4/3] overflow-hidden bg-muted"
-      >
+      <div className="relative block aspect-[4/3] overflow-hidden bg-muted">
         <Image
           src={product.image}
           alt={product.name}
@@ -41,7 +34,7 @@ export function ProductCard({ product }: { product: Product }) {
             Nổi bật
           </span>
         )}
-      </Link>
+      </div>
 
       <div className="flex flex-1 flex-col p-4">
         <div className="mb-1 flex items-center gap-2">
@@ -49,11 +42,9 @@ export function ProductCard({ product }: { product: Product }) {
             {product.category}
           </span>
         </div>
-        <Link href={`/products/${product.slug}`}>
-          <h3 className="line-clamp-2 text-sm font-semibold leading-snug text-foreground transition-colors group-hover:text-primary">
-            {product.name}
-          </h3>
-        </Link>
+        <h3 className="line-clamp-2 text-sm font-semibold leading-snug text-foreground transition-colors group-hover:text-primary">
+          {product.name}
+        </h3>
         <p className="mt-0.5 text-xs text-muted-foreground">{product.code}</p>
 
         <div className="mt-2">
@@ -75,21 +66,13 @@ export function ProductCard({ product }: { product: Product }) {
             type="button"
             onClick={handleAdd}
             className={cn(
-              'flex flex-1 items-center justify-center gap-1.5 rounded-full bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground transition-all hover:bg-primary/90 active:scale-[0.98]'
+              "flex flex-1 items-center justify-center gap-1.5 rounded-full bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground transition-all hover:bg-primary/90 active:scale-[0.98]",
             )}
           >
             <ShoppingCart className="h-4 w-4" />
             <span>Thêm vào giỏ</span>
           </button>
         </div>
-
-        <Link
-          href={`/products/${product.slug}`}
-          className="mt-3 flex items-center justify-center gap-1 text-xs font-medium text-muted-foreground transition-colors hover:text-primary"
-        >
-          Xem chi tiết
-          <ChevronRight className="h-3.5 w-3.5" />
-        </Link>
       </div>
     </div>
   );

@@ -20,11 +20,9 @@ export interface CartItem {
 }
 
 export interface CustomerInfo {
+  dealerName: string;
   name: string;
   phone: string;
-  email?: string;
-  company?: string;
-  address?: string;
   note?: string;
 }
 

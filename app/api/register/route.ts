@@ -40,12 +40,12 @@ export async function POST(req: NextRequest) {
       await appendOrder({
         orderCode,
         createdAt,
+        dealerName: customer.dealerName,
         customerName: customer.name,
         phone: customer.phone,
-        email: customer.email ?? '',
-        company: customer.company ?? '',
-        address: customer.address ?? '',
         note: customer.note ?? '',
+        subtotalAmount: order.subtotalAmount,
+        discountAmount: order.discountAmount,
         totalAmount: order.totalAmount,
         status: 'NEW',
       });

@@ -151,7 +151,7 @@ Mở `data/products.ts` và thêm/sửa các object `Product`. Không cần data
 
 ### Sheet `Orders`
 
-| orderCode | createdAt | customerName | phone | email | company | address | note | totalAmount | status |
+| orderCode | createdAt | dealerName | customerName | phone | note | subtotalAmount | discountAmount | totalAmount | status |
 |-----------|-----------|--------------|-------|-------|---------|---------|------|-------------|--------|
 
 ### Sheet `OrderItems`

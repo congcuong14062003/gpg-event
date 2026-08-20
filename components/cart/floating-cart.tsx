@@ -29,7 +29,7 @@ export function FloatingCart() {
             </span>
             <span className="flex flex-col">
               <span className="text-xs text-background/70">
-                {totalQuantity} sản phẩm
+                {totalQuantity} sản phẩm · Đã giảm 5%
               </span>
               <span className="text-sm font-bold">
                 {formatCurrency(totalAmount)}

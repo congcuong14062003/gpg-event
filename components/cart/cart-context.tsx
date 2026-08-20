@@ -12,10 +12,13 @@ import { CartItem } from '@/types';
 import { getProductById } from '@/data/products';
 
 const STORAGE_KEY = 'gpg-solar-cart';
+const DISCOUNT_RATE = 0.05;
 
 interface CartContextValue {
   items: CartItem[];
   totalQuantity: number;
+  subtotalAmount: number;
+  discountAmount: number;
   totalAmount: number;
   itemCount: number;
   isHydrated: boolean;
@@ -106,7 +109,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const clearCart = useCallback(() => setItems([]), []);
 
-  const { totalQuantity, totalAmount, itemCount } = useMemo(() => {
+  const { totalQuantity, subtotalAmount, discountAmount, totalAmount, itemCount } = useMemo(() => {
     let qty = 0;
     let amount = 0;
     let count = 0;
@@ -117,13 +120,22 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       amount += product.price * item.quantity;
       count += 1;
     }
-    return { totalQuantity: qty, totalAmount: amount, itemCount: count };
+    const discount = Math.round(amount * DISCOUNT_RATE);
+    return {
+      totalQuantity: qty,
+      subtotalAmount: amount,
+      discountAmount: discount,
+      totalAmount: amount - discount,
+      itemCount: count,
+    };
   }, [items]);
 
   const value = useMemo<CartContextValue>(
     () => ({
       items,
       totalQuantity,
+      subtotalAmount,
+      discountAmount,
       totalAmount,
       itemCount,
       isHydrated,
@@ -137,6 +149,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     [
       items,
       totalQuantity,
+      subtotalAmount,
+      discountAmount,
       totalAmount,
       itemCount,
       isHydrated,

@@ -22,6 +22,8 @@ import { CustomerInfo } from '@/types';
 export default function CartPage() {
   const {
     items,
+    subtotalAmount,
+    discountAmount,
     totalAmount,
     totalQuantity,
     itemCount,
@@ -35,11 +37,9 @@ export default function CartPage() {
   const router = useRouter();
 
   const [form, setForm] = useState<CustomerInfo>({
+    dealerName: '',
     name: '',
     phone: '',
-    email: '',
-    company: '',
-    address: '',
     note: '',
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -55,13 +55,13 @@ export default function CartPage() {
 
   const validate = (): boolean => {
     const e: Record<string, string> = {};
+    if (!form.dealerName.trim()) e.dealerName = 'Vui lòng nhập tên đại lý';
+    else if (form.dealerName.trim().length < 2) e.dealerName = 'Tên đại lý quá ngắn';
     if (!form.name.trim()) e.name = 'Vui lòng nhập họ và tên';
     else if (form.name.trim().length < 2) e.name = 'Họ và tên quá ngắn';
     if (!form.phone.trim()) e.phone = 'Vui lòng nhập số điện thoại';
     else if (!/^(0|\+84)(3[2-9]|5[2689]|7[06-9]|8[1-9]|9[0-9])[0-9]{7}$/.test(form.phone.trim()))
       e.phone = 'Số điện thoại không hợp lệ';
-    if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
-      e.email = 'Email không đúng định dạng';
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -83,11 +83,9 @@ export default function CartPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           customer: {
+            dealerName: form.dealerName.trim(),
             name: form.name.trim(),
             phone: form.phone.trim(),
-            email: form.email?.trim() || undefined,
-            company: form.company?.trim() || undefined,
-            address: form.address?.trim() || undefined,
             note: form.note?.trim() || undefined,
           },
           items: items.map((i) => ({ productId: i.productId, quantity: i.quantity })),
@@ -223,13 +221,19 @@ export default function CartPage() {
               </div>
             </div>
 
-            <div className="flex items-center justify-between border-t border-border pt-4">
-              <span className="text-sm font-medium text-muted-foreground">
-                Tổng cộng
-              </span>
-              <span className="text-xl font-bold text-primary">
-                {formatCurrency(totalAmount)}
-              </span>
+            <div className="space-y-2 border-t border-border pt-4 text-sm">
+              <div className="flex items-center justify-between text-muted-foreground">
+                <span>Tạm tính</span>
+                <span>{formatCurrency(subtotalAmount)}</span>
+              </div>
+              <div className="flex items-center justify-between font-medium text-green-600">
+                <span>Giảm giá 5%</span>
+                <span>-{formatCurrency(discountAmount)}</span>
+              </div>
+              <div className="flex items-center justify-between pt-1">
+                <span className="font-semibold text-foreground">Tổng thanh toán</span>
+                <span className="text-xl font-bold text-primary">{formatCurrency(totalAmount)}</span>
+              </div>
             </div>
           </div>
 
@@ -243,7 +247,15 @@ export default function CartPage() {
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <FormField
-                label="Họ và tên"
+                label="Tên đại lý"
+                required
+                error={errors.dealerName}
+                value={form.dealerName}
+                onChange={(v) => setForm({ ...form, dealerName: v })}
+                placeholder="Đại lý ABC"
+              />
+              <FormField
+                label="Tên khách hàng"
                 required
                 error={errors.name}
                 value={form.name}
@@ -261,29 +273,6 @@ export default function CartPage() {
                 type="tel"
                 autoComplete="tel"
               />
-              <FormField
-                label="Email"
-                error={errors.email}
-                value={form.email ?? ''}
-                onChange={(v) => setForm({ ...form, email: v })}
-                placeholder="email@example.com"
-                type="email"
-                autoComplete="email"
-              />
-              <FormField
-                label="Tên công ty"
-                value={form.company ?? ''}
-                onChange={(v) => setForm({ ...form, company: v })}
-                placeholder="ABC Solar"
-              />
-              <div className="sm:col-span-2">
-                <FormField
-                  label="Địa chỉ"
-                  value={form.address ?? ''}
-                  onChange={(v) => setForm({ ...form, address: v })}
-                  placeholder="Hà Nội"
-                />
-              </div>
               <div className="sm:col-span-2">
                 <label className="mb-1.5 block text-sm font-medium text-foreground">
                   Ghi chú

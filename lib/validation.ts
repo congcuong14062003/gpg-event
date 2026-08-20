@@ -3,6 +3,10 @@ import { z } from 'zod';
 const vietnamPhoneRegex = /^(0|\+84)(3[2-9]|5[2689]|7[06-9]|8[1-9]|9[0-9])[0-9]{7}$/;
 
 export const customerSchema = z.object({
+  dealerName: z
+    .string()
+    .min(2, 'Tên đại lý phải có ít nhất 2 ký tự')
+    .max(200, 'Tên đại lý quá dài'),
   name: z
     .string()
     .min(2, 'Họ và tên phải có ít nhất 2 ký tự')
@@ -11,13 +15,6 @@ export const customerSchema = z.object({
     .string()
     .min(1, 'Số điện thoại là bắt buộc')
     .regex(vietnamPhoneRegex, 'Số điện thoại không hợp lệ'),
-  email: z
-    .string()
-    .email('Email không đúng định dạng')
-    .optional()
-    .or(z.literal('')),
-  company: z.string().max(200).optional().or(z.literal('')),
-  address: z.string().max(500).optional().or(z.literal('')),
   note: z.string().max(1000).optional().or(z.literal('')),
 });
 

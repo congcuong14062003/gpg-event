@@ -10,12 +10,12 @@ const ORDER_ITEMS_SHEET = 'OrderItems';
 export interface OrderRow {
   orderCode: string;
   createdAt: string;
+  dealerName: string;
   customerName: string;
   phone: string;
-  email: string;
-  company: string;
-  address: string;
   note: string;
+  subtotalAmount: number;
+  discountAmount: number;
   totalAmount: number;
   status: string;
 }
@@ -77,12 +77,12 @@ export async function appendOrder(order: OrderRow): Promise<void> {
   const headers = [
     'orderCode',
     'createdAt',
+    'dealerName',
     'customerName',
     'phone',
-    'email',
-    'company',
-    'address',
     'note',
+    'subtotalAmount',
+    'discountAmount',
     'totalAmount',
     'status',
   ];
@@ -96,12 +96,12 @@ export async function appendOrder(order: OrderRow): Promise<void> {
         [
           order.orderCode,
           order.createdAt,
+          order.dealerName,
           order.customerName,
           order.phone,
-          order.email,
-          order.company,
-          order.address,
           order.note,
+          order.subtotalAmount,
+          order.discountAmount,
           order.totalAmount,
           order.status,
         ],

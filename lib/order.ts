@@ -10,13 +10,17 @@ export interface OrderLineItem {
 
 export interface CalculatedOrder {
   items: OrderLineItem[];
+  subtotalAmount: number;
+  discountAmount: number;
   totalAmount: number;
   totalQuantity: number;
 }
 
+export const ORDER_DISCOUNT_RATE = 0.05;
+
 export function calculateOrder(cartItems: CartItem[]): CalculatedOrder {
   const lineItems: OrderLineItem[] = [];
-  let totalAmount = 0;
+  let subtotalAmount = 0;
   let totalQuantity = 0;
 
   for (const item of cartItems) {
@@ -27,11 +31,13 @@ export function calculateOrder(cartItems: CartItem[]): CalculatedOrder {
     const unitPrice = product.price;
     const totalPrice = unitPrice * item.quantity;
     lineItems.push({ product, quantity: item.quantity, unitPrice, totalPrice });
-    totalAmount += totalPrice;
+    subtotalAmount += totalPrice;
     totalQuantity += item.quantity;
   }
 
-  return { items: lineItems, totalAmount, totalQuantity };
+  const discountAmount = Math.round(subtotalAmount * ORDER_DISCOUNT_RATE);
+  const totalAmount = subtotalAmount - discountAmount;
+  return { items: lineItems, subtotalAmount, discountAmount, totalAmount, totalQuantity };
 }
 
 export function validateOrderProducts(cartItems: CartItem[]): {
